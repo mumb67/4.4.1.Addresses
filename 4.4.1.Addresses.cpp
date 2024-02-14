@@ -1,66 +1,79 @@
-﻿// 4.4.1.Addresses.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
-
-#include <iostream>
-//#include <clocale>
-#include <Windows.h>
+﻿#include <iostream>
+#include <string>
 #include <fstream>
 
 class Addresses {
 public:
-    void get_addresses(std::string *addressesArray) {
-        this->inputFile.open("in.txt");
+	Addresses(std::string _city, std::string _street, int _houseNum, int _apartmentNum) {
+		this->city = _city;
+		this->street = _street;
+		this->houseNum = _houseNum;
+		this->apartmentNum = _apartmentNum;
+	}
 
-        if (inputFile.is_open()) {
+	Addresses() {
+		city = " ";
+		street = " ";
+		houseNum = 0;
+		apartmentNum = 0;
+	}
 
-            outputFile.open("out.txt");
-            std::string addressStr;
+	std::string get_output_address() {
+		return city + ", " + street + ", " + std::to_string(houseNum) + ", " + std::to_string(apartmentNum);
+	}
 
-            inputFile >> addressesCount;
-            outputFile << addressesCount << std::endl;
+	std::string get_city() {
+		return city;
+	}
 
-            for (int i = 0; i < addressesCount; i++) {
-                for (int j = 0; j < 4; j++)
-                {
-                    inputFile >> addressStr;
-                    if (j == 0) {
-                        addressesArray[i] = addressStr;
-                    }
-                    else {
-                        addressesArray[i] += ", ";
-                        addressesArray[i] += addressStr;
-                    }
-                }
-            }
-
-            for (int i = addressesCount-1; i > -1; i--) {
-                outputFile << addressesArray[i] << std::endl;
-                
-            }
-            
-            if (inputFile.eof())
-            {
-                inputFile.close();
-                outputFile.close();
-            }
-        }
-        else {
-            std::cout << "Файл не открыт!" << std::endl;
-        } 
-    }
 private:
-    std::ifstream inputFile;
-    std::ofstream outputFile;
-    unsigned int addressesCount = 0;
+	std::string city;
+	std::string street;
+	int houseNum;
+	int apartmentNum;
 };
-
-std::string* addressesArray = new std::string[3];
 
 int main()
 {
-    setlocale(LC_ALL, "Russian");
+	setlocale(LC_ALL, "rus");
 
-    Addresses A;
-    A.get_addresses(addressesArray);
-    delete[] addressesArray;
+	std::ifstream inFile("in.txt");
+	std::ofstream outFile("out.txt");
+
+	std::string tempStr;
+	inFile >> tempStr;
+
+	const int countAdd = std::stoi(tempStr);
+	outFile << countAdd << std::endl;
+
+	Addresses* addresses = new Addresses[countAdd];
+
+	for (int i = 0; i < countAdd; i++) {
+		std::string tempCity;
+		std::string tempStreet;
+		int tempHouse;
+		int tempApart;
+
+		inFile >> tempCity;
+		inFile >> tempStreet;
+		inFile >> tempHouse;
+		inFile >> tempApart;
+		addresses[i] = Addresses(tempCity, tempStreet, tempHouse, tempApart);
+	}
+
+	for (int i = 0; i < countAdd; i++) {
+		for (int j = 0; j < countAdd; j++) {
+				Addresses temp = addresses[i];
+				addresses[i] = addresses[j];
+				addresses[j] = temp;
+		}
+	}
+
+	for (int i = 0; i < countAdd; i++) {
+		outFile << addresses[i].get_output_address() << std::endl;
+	}
+
+	inFile.close();
+	outFile.close();
+	delete[]addresses;
 }
